@@ -14,8 +14,8 @@ Game.canvas.height = Game.H;
 Game.canvas.width = Game.W;
 
 Game.init = function() {
-	window.addEventListener('keydown',Game.movement.keyDown);
-	window.addEventListener('keyup',Game.movement.keyUp);
+	window.addEventListener('keydown',Game.keys.keyDown);
+	window.addEventListener('keyup',Game.keys.keyUp);
 	requestAnimationFrame(Game.update);
 }
 Game.update = function() {
@@ -26,6 +26,11 @@ Game.update = function() {
 	Game.ctx.fillRect(0,0,Game.W,Game.H);
 	//Paint the player
 	Game.player.paint();
+	//Check is player keys
+	Game.keys.checkKeys();
+
+	Game.player.handleBullets.renderBullets();
+	Game.player.handleBullets.updateBullets();
 
 	requestAnimationFrame(Game.update);
 };
@@ -49,8 +54,36 @@ Game.player = {
 		Game.ctx.drawImage(this.img,this.x,this.y,this.w,this.h);
 	}
 }
+//Empty array of bullets
+Game.player.bullets = [];
+//Bullet constructor
+Game.Bullet = function(x,y){
+	this.x = x + 60;
+	this.y = y + 29;
+	this.render = function() {
+		Game.ctx.fillStyle = '#ffffff';
+		Game.ctx.fillRect(this.x,this.y, 10, 4);
+	};
+	this.update = function() {
+		this.x += 20;
+	};
+};
+Game.player.handleBullets = {
+	renderBullets: function() {
+		for(var i = 0; i < Game.player.bullets.length; i++){
+			Game.player.bullets[i].render();
+		}
+	},
+	updateBullets: function() {
+		for(var i = 0; i < Game.player.bullets.length; i++){
+			Game.player.bullets[i].update();
+		}
+	}
+};
+
+
 //Movement Logic
-Game.movement = {
+Game.keys = {
 	keyDown: function(e) {
 		//37 is left
 		//38 is up
@@ -72,6 +105,9 @@ Game.movement = {
 		if(e.keyCode === 40){
 			Game.player.down = true;
 			Game.player.y += Game.player.speed;
+		}
+		if(e.keyCode === 32) {
+			Game.player.bullets.push(new Game.Bullet(Game.player.x,Game.player.y));
 		}
 	},
 	keyUp: function(e){
@@ -102,6 +138,5 @@ Game.movement = {
 			Game.player.y += Game.player.speed;
 		}
 	}
-
 }
 Game.init();
