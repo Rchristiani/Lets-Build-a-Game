@@ -15,6 +15,7 @@ Game.canvas.width = Game.W;
 
 Game.init = function() {
 	Game.createStars();
+	Game.enemyMake();
 	window.addEventListener('keydown',Game.keys.keyDown);
 	window.addEventListener('keyup',Game.keys.keyUp);
 	requestAnimationFrame(Game.update);
@@ -33,6 +34,9 @@ Game.update = function() {
 
 	Game.player.handleBullets.renderBullets();
 	Game.player.handleBullets.updateBullets();
+	Game.player.handleBullets.collisionCheck();
+
+	Game.enemy.paint();
 
 	requestAnimationFrame(Game.update);
 };
@@ -80,7 +84,34 @@ Game.player.handleBullets = {
 		for(var i = 0; i < Game.player.bullets.length; i++){
 			Game.player.bullets[i].update();
 		}
+	},
+	collisionCheck: function() {
+		for(var i = 0; i < Game.player.bullets.length; i++){
+			if(Game.player.bullets[i].y > Game.enemy.y
+			&& Game.player.bullets[i].y < Game.enemy.y + Game.enemy.H
+			&& Game.player.bullets[i].x > Game.enemy.x
+			&& Game.player.bullets[i].x < Game.enemy.x + Game.enemy.W){
+				Game.player.bullets.splice(i,1);
+				Game.enemyMake();
+			}
+		}
 	}
+};
+
+Game.Enemy = function() {
+	this.x = Game.W - 64;
+	this.y = Math.floor(Math.random()*Game.H);
+	this.H = 58;
+	this.W = 58;
+	this.img = new Image();
+	this.img.src = "imgs/enemy_ship.gif";
+	this.paint = function() {
+		Game.ctx.drawImage(this.img,this.x,this.y);
+	};
+};
+
+Game.enemyMake = function() {
+	Game.enemy = new Game.Enemy();
 };
 
 
